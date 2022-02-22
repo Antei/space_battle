@@ -49,11 +49,11 @@ class Player(pygame.sprite.Sprite):
 
     def shoot_gun(self):
         # выстрел из орудия
-        self.bullets.add(Bullet(self.rect.center))
+        self.bullets.add(Bullet(self.rect.center, self.rect.bottom))
 
     def update(self):
         # передача всех действий игрока 
-        # и класса Bullet
+        # и группы снарядов
         self.get_input()
         self.constraint()
         self.reload()
