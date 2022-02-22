@@ -10,6 +10,8 @@ class Game:
         # обновление всех групп спрайтов
         # отрисовка всех групп спрайтов
         self.player.update()
+
+        self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
 
 if __name__ == '__main__':
