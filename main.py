@@ -1,3 +1,5 @@
+from re import X
+from tkinter import Y
 import pygame, sys
 from player import Player
 import obstacle
@@ -11,7 +13,26 @@ class Game:
         # настройка препятствий
         self.shape = obstacle.shape
         self.block_size = 6
-        self.blocks 
+        self.blocks = pygame.sprite.Group()
+        self.obstacle_amount = 4
+        self.obstacle_x_poss = [i * (screen_width / self.obstacle_amount) for i in range(self.obstacle_amount)]
+        self.create_many_obstacles(*self.obstacle_x_poss, x_pos= screen_width / 15, y_pos=500)
+
+    def create_obstacle(self, x_pos, y_pos, offset_args):
+        # создание препятствия из массива shape в obstacle 
+        # c заполнением блоками только элементов 'x'
+        for row_index, row in enumerate(self.shape):
+            for col_index, col in enumerate(row):
+                if col == 'x':
+                    x = x_pos + col_index * self.block_size + offset_args
+                    y = y_pos + row_index * self.block_size
+                    block = obstacle.Block(self.block_size, (250, 80, 80), x, y)
+                    self.blocks.add(block)
+
+    def create_many_obstacles(self, *offset_args, x_pos, y_pos):
+        # создание большого количества препятствий
+        for offset_x in offset_args:
+            self.create_obstacle(x_pos, y_pos, offset_x)
 
     def run(self):
         # обновление всех групп спрайтов
@@ -20,6 +41,8 @@ class Game:
 
         self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
+
+        self.blocks.draw(screen)
 
 if __name__ == '__main__':
     pygame.init()  # инициализация
