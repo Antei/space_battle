@@ -67,9 +67,7 @@ class Game:
         for enemy in all_enemyes:
             if enemy.rect.right >= screen_width:
                 self.enemy_x_direction = -1
-                # self.enemy_move_down(2)  # вариант автора курса
             elif enemy.rect.left <= 0:
-                # self.enemy_move_down(2)  # вариант автора курса
                 self.enemy_x_direction = 1
 
     # проверка границ для ограничения передвижения отряда врагов 
@@ -77,16 +75,10 @@ class Game:
     def enemy_border_y_checker(self):
         all_enemyes = self.enemyes.sprites()
         for enemy in all_enemyes:
-            if enemy.rect.bottom >= screen_height - 100:
+            if enemy.rect.bottom >= screen_height:
                 self.enemy_y_direction = 1
             elif enemy.rect.top <= 100:
                 self.enemy_y_direction = -1
-
-    # вариант движения по вертикали от автора курса, не используется, но пока пусть будет
-#    def enemy_move_down(self, distance):
-#        if self.enemyes:
-#            for enemy in self.enemyes.sprites():
-#                enemy.rect.y += distance
 
     def enemy_shoot(self):
         if self.enemyes.sprites():
@@ -99,6 +91,42 @@ class Game:
         if self.elite_spawn_time <= 0:
             self.elite.add(ELite(choice(('right', 'left')), screen_width))
             self.elite_spawn_time = randint(400, 800)
+
+    # проверка коллизий между игроком и выстрелами врагов, препятствиями, 
+    # а также между выстрелами игрока и врагами
+    def collision_checks(self):
+
+        # выстрелы игрока
+        if self.player.sprite.bullets:
+            for bullet in self.player.sprite.bullets:
+                # коллизии препятствий
+                if pygame.sprite.spritecollide(bullet, self.blocks, True):
+                    bullet.kill()
+                # коллизии врагов
+                if pygame.sprite.spritecollide(bullet, self.enemyes, True):
+                    bullet.kill()
+                # коллизии элитного врага
+                if pygame.sprite.spritecollide(bullet, self.elite, True):
+                    bullet.kill()
+
+        # выстрелы врагов
+        if self.enemy_shoots:
+            for bullet in self.enemy_shoots:
+                # коллизии препятствий
+                if pygame.sprite.spritecollide(bullet, self.blocks, True):
+                    bullet.kill()
+                # коллизии игрока
+                if pygame.sprite.spritecollide(bullet, self.player, False):
+                    bullet.kill()
+                    print('dead')
+
+        # враги
+        if self.enemyes:
+            for enemy in self.enemyes:
+                pygame.sprite.spritecollide(enemy, self.blocks, True)
+                if pygame.sprite.spritecollide(enemy, self.player, False):
+                    pygame.quit()
+                    sys.exit()
 
     # обновление всех групп спрайтов
     # отрисовка всех групп спрайтов    
@@ -118,6 +146,8 @@ class Game:
         self.enemyes.draw(screen)
         self.enemy_shoots.draw(screen)
         self.elite.draw(screen)
+
+        self.collision_checks()
 
 if __name__ == '__main__':
     pygame.init()  # инициализация
