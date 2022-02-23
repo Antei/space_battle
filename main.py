@@ -3,6 +3,7 @@ from tkinter import Y
 import pygame, sys
 from player import Player
 import obstacle
+from enemy import Enemy
 
 class Game:
     def __init__(self):
@@ -17,6 +18,10 @@ class Game:
         self.obstacle_amount = 4
         self.obstacle_x_poss = [i * (screen_width / self.obstacle_amount) for i in range(self.obstacle_amount)]
         self.create_many_obstacles(*self.obstacle_x_poss, x_pos= screen_width / 15, y_pos=500)
+
+        # настройка противников
+        self.enemyes = pygame.sprite.Group()
+        self.enemy_setup(rows=6, cols=8)
 
     def create_obstacle(self, x_pos, y_pos, offset_args):
         # создание препятствия из массива shape в obstacle 
@@ -34,6 +39,19 @@ class Game:
         for offset_x in offset_args:
             self.create_obstacle(x_pos, y_pos, offset_x)
 
+    def enemy_setup(self, rows, cols, x_dist=60, y_dist=50, x_offset=65, y_offset=70):
+        for row_index, row in enumerate(range(rows)):
+            for col_index, col in enumerate(range(cols)):
+                x = col_index * x_dist + x_offset
+                y = row_index * y_dist + y_offset
+                if row_index == 0:
+                    enemy_sprite = Enemy('red', x, y)
+                if 1 <= row_index <= 2:
+                    enemy_sprite = Enemy('green', x, y)
+                else:
+                    enemy_sprite = Enemy('blue', x, y)
+                self.enemyes.add(enemy_sprite)
+
     def run(self):
         # обновление всех групп спрайтов
         # отрисовка всех групп спрайтов
@@ -43,6 +61,7 @@ class Game:
         self.player.draw(screen)
 
         self.blocks.draw(screen)
+        self.enemyes.draw(screen)
 
 if __name__ == '__main__':
     pygame.init()  # инициализация
