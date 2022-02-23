@@ -95,7 +95,6 @@ class Game:
     # проверка коллизий между игроком и выстрелами врагов, препятствиями, 
     # а также между выстрелами игрока и врагами
     def collision_checks(self):
-
         # выстрелы игрока
         if self.player.sprite.bullets:
             for bullet in self.player.sprite.bullets:
@@ -108,7 +107,6 @@ class Game:
                 # коллизии элитного врага
                 if pygame.sprite.spritecollide(bullet, self.elite, True):
                     bullet.kill()
-
         # выстрелы врагов
         if self.enemy_shoots:
             for bullet in self.enemy_shoots:
@@ -119,8 +117,7 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
                     print('dead')
-
-        # враги
+        # коллизии врагов и игрока
         if self.enemyes:
             for enemy in self.enemyes:
                 pygame.sprite.spritecollide(enemy, self.blocks, True)
