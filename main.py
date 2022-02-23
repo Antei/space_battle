@@ -1,9 +1,9 @@
-from re import X
-from tkinter import Y
 import pygame, sys
 from player import Player
 import obstacle
-from enemy import Enemy
+from enemy import Enemy, ELite
+from bullet import Bullet
+from random import choice, randint
 
 class Game:
     def __init__(self):
@@ -19,11 +19,16 @@ class Game:
         self.obstacle_x_poss = [i * (screen_width / self.obstacle_amount) for i in range(self.obstacle_amount)]
         self.create_many_obstacles(*self.obstacle_x_poss, x_pos= screen_width / 15, y_pos=500)
 
-        # настройка матрицы размерности отряда противников
+        # настройка отряда противников
         self.enemyes = pygame.sprite.Group()
+        self.enemy_shoots = pygame.sprite.Group()
         self.enemy_setup(rows=6, cols=8)
         self.enemy_x_direction = 1
         self.enemy_y_direction = 1
+
+        # настройка элитного противника
+        self.elite = pygame.sprite.GroupSingle()
+        self.elite_spawn_time = randint(400, 800)
 
     # создание препятствия из массива shape в obstacle 
     # c заполнением блоками только элементов 'x'
@@ -64,8 +69,8 @@ class Game:
                 self.enemy_x_direction = -1
                 # self.enemy_move_down(2)  # вариант автора курса
             elif enemy.rect.left <= 0:
-                self.enemy_x_direction = 1
                 # self.enemy_move_down(2)  # вариант автора курса
+                self.enemy_x_direction = 1
 
     # проверка границ для ограничения передвижения отряда врагов 
     # и смена направления при достижении границы по вертикали
@@ -74,28 +79,45 @@ class Game:
         for enemy in all_enemyes:
             if enemy.rect.bottom >= screen_height - 100:
                 self.enemy_y_direction = 1
-            elif enemy.rect.top <= 50:
+            elif enemy.rect.top <= 100:
                 self.enemy_y_direction = -1
 
-    # вариант от автора изначального курса, не используется, но пока пусть будет
+    # вариант движения по вертикали от автора курса, не используется, но пока пусть будет
 #    def enemy_move_down(self, distance):
 #        if self.enemyes:
 #            for enemy in self.enemyes.sprites():
 #                enemy.rect.y += distance
 
+    def enemy_shoot(self):
+        if self.enemyes.sprites():
+            random_enemy = choice(self.enemyes.sprites())
+            shoot_sprite = Bullet(random_enemy.rect.center, screen_height, speed=-6)
+            self.enemy_shoots.add(shoot_sprite)
+
+    def elite_timer(self):
+        self.elite_spawn_time -= 1
+        if self.elite_spawn_time <= 0:
+            self.elite.add(ELite(choice(('right', 'left')), screen_width))
+            self.elite_spawn_time = randint(400, 800)
+
     # обновление всех групп спрайтов
     # отрисовка всех групп спрайтов    
     def run(self):
         self.player.update()
-        self.enemyes.update(self.enemy_x_direction, self.enemy_y_direction)
-        self.enemy_border_x_checker()
-        self.enemy_border_y_checker()
-
         self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
 
+        self.enemyes.update(self.enemy_x_direction, self.enemy_y_direction)
+        self.enemy_border_x_checker()
+        self.enemy_border_y_checker()
+        self.enemy_shoots.update()
+        self.elite_timer()
+        self.elite.update()
+
         self.blocks.draw(screen)
         self.enemyes.draw(screen)
+        self.enemy_shoots.draw(screen)
+        self.elite.draw(screen)
 
 if __name__ == '__main__':
     pygame.init()  # инициализация
@@ -107,11 +129,17 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     game = Game()
 
+    # событие выстрела противниками в игрока
+    ENEMYSHOOT = pygame.USEREVENT + 1
+    pygame.time.set_timer(ENEMYSHOOT, 800)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == ENEMYSHOOT:
+                game.enemy_shoot()
 
         screen.fill((30, 30, 30))
         game.run()

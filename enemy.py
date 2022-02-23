@@ -11,3 +11,20 @@ class Enemy(pygame.sprite.Sprite):
     def update(self, direction_x, direction_y):
         self.rect.x += direction_x
         self.rect.y -= direction_y
+
+class ELite(pygame.sprite.Sprite):
+    def __init__(self, side, screen_width):
+        super().__init__()
+        self.image = pygame.image.load('space_battle\\images\\enemyes\\elite.png').convert_alpha()
+        
+        if side == 'right':
+            x = screen_width + 50
+            self.speed = -3
+        else:
+            x = -50
+            self.speed = 3
+        
+        self.rect = self.image.get_rect(topleft = (x, 60))
+
+    def update(self):
+        self.rect.x += self.speed
