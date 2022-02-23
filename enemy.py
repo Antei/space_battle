@@ -8,6 +8,13 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.rect = self.image.get_rect(topleft = (x, y))
 
+        if color == 'red':
+            self.value = 30
+        elif color == 'green':
+            self.value = 20
+        else:
+            self.value = 10
+
     # определение направления движения врагов
     def update(self, direction_x, direction_y):
         self.rect.x += direction_x
@@ -26,7 +33,7 @@ class ELite(pygame.sprite.Sprite):
             x = -50
             self.speed = 3
         
-        self.rect = self.image.get_rect(topleft = (x, 60))
+        self.rect = self.image.get_rect(topleft = (x, 70))
 
     def update(self):
         self.rect.x += self.speed

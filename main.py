@@ -11,13 +11,21 @@ class Game:
         player_sprite = Player((screen_width / 2, screen_height), screen_width, 5)
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
+        # настройка статистики и количества жизней
+        self.lives = 3
+        self.live_surface = pygame.image.load('space_battle\\images\\player.png').convert_alpha()
+        self.live_surface = pygame.transform.scale(self.live_surface, (48, 21))
+        self.liv_x_start_pos = screen_width - (self.live_surface.get_size()[0] * 2 + 20)
+        self.score = 0
+        self.font = pygame.font.SysFont('Constantia', 24)
+
         # настройка препятствий
         self.shape = obstacle.shape
-        self.block_size = 6
+        self.block_size = 5
         self.blocks = pygame.sprite.Group()
         self.obstacle_amount = 4
         self.obstacle_x_poss = [i * (screen_width / self.obstacle_amount) for i in range(self.obstacle_amount)]
-        self.create_many_obstacles(*self.obstacle_x_poss, x_pos= screen_width / 15, y_pos=500)
+        self.create_many_obstacles(*self.obstacle_x_poss, x_pos=screen_width / 15, y_pos=screen_height - 70)
 
         # настройка отряда противников
         self.enemyes = pygame.sprite.Group()
@@ -46,7 +54,7 @@ class Game:
         for offset_x in offset_args:
             self.create_obstacle(x_pos, y_pos, offset_x)
 
-    # настройка отряда противников
+    # настройка отряда врагов
     def enemy_setup(self, rows, cols, x_dist=60, y_dist=50, x_offset=65, y_offset=70):
         for row_index, row in enumerate(range(rows)):
             for col_index, col in enumerate(range(cols)):
@@ -71,7 +79,7 @@ class Game:
                 self.enemy_x_direction = 1
 
     # проверка границ для ограничения передвижения отряда врагов 
-    # и смена направления при достижении границы по вертикали
+    # и смена направления при достижении низа или верха, или препятствия
     def enemy_border_y_checker(self):
         all_enemyes = self.enemyes.sprites()
         for enemy in all_enemyes:
@@ -80,12 +88,15 @@ class Game:
             elif enemy.rect.top <= 100:
                 self.enemy_y_direction = -1
 
+    # настройка случайной очередности выстрелов отряда врагов, 
+    # без нее будут стрелять все сразу
     def enemy_shoot(self):
         if self.enemyes.sprites():
             random_enemy = choice(self.enemyes.sprites())
             shoot_sprite = Bullet(random_enemy.rect.center, screen_height, speed=-6)
             self.enemy_shoots.add(shoot_sprite)
 
+    # настройка появления элитного врага
     def elite_timer(self):
         self.elite_spawn_time -= 1
         if self.elite_spawn_time <= 0:
@@ -95,6 +106,7 @@ class Game:
     # проверка коллизий между игроком и выстрелами врагов, препятствиями, 
     # а также между выстрелами игрока и врагами
     def collision_checks(self):
+
         # выстрелы игрока
         if self.player.sprite.bullets:
             for bullet in self.player.sprite.bullets:
@@ -102,11 +114,16 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.blocks, True):
                     bullet.kill()
                 # коллизии врагов
-                if pygame.sprite.spritecollide(bullet, self.enemyes, True):
+                enemyes_hit = pygame.sprite.spritecollide(bullet, self.enemyes, True)
+                if enemyes_hit:
+                    for enemy in enemyes_hit:
+                        self.score += enemy.value
                     bullet.kill()
                 # коллизии элитного врага
                 if pygame.sprite.spritecollide(bullet, self.elite, True):
                     bullet.kill()
+                    self.score += 500
+
         # выстрелы врагов
         if self.enemy_shoots:
             for bullet in self.enemy_shoots:
@@ -116,35 +133,76 @@ class Game:
                 # коллизии игрока
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
-                    print('dead')
-        # коллизии врагов и игрока
+                    self.lives -= 1
+                    if self.lives <= 0:
+                        pygame.quit()
+                        sys.exit()
+
+        # коллизии врагов, препятствий и игрока
         if self.enemyes:
             for enemy in self.enemyes:
-                pygame.sprite.spritecollide(enemy, self.blocks, True)
+                if pygame.sprite.spritecollide(enemy, self.blocks, True):
+                    self.enemy_y_direction = 1
                 if pygame.sprite.spritecollide(enemy, self.player, False):
                     pygame.quit()
                     sys.exit()
 
-    # обновление всех групп спрайтов
-    # отрисовка всех групп спрайтов    
+    # отображение счетчика жизней
+    def display_lives(self):
+        for live in range(self.lives - 1):
+            x = self.liv_x_start_pos + (live * (self.live_surface.get_size()[0] + 10))
+            screen.blit(self.live_surface, (x, 8))
+
+    # отображение статистики
+    def display_score(self):
+        score_surface = self.font.render(f'Score: {self.score}', False, (200, 200, 200))
+        score_rect = score_surface.get_rect(topleft = (10, 10))
+        screen.blit(score_surface, score_rect) 
+
+    # запуск, отображение и обновление картинки, etc
     def run(self):
-        self.player.update()
-        self.player.sprite.bullets.draw(screen)
-        self.player.draw(screen)
-
-        self.enemyes.update(self.enemy_x_direction, self.enemy_y_direction)
-        self.enemy_border_x_checker()
-        self.enemy_border_y_checker()
+        self.player.update()        
         self.enemy_shoots.update()
-        self.elite_timer()
         self.elite.update()
+        self.enemyes.update(self.enemy_x_direction, self.enemy_y_direction)
 
+        self.player.draw(screen)
+        self.player.sprite.bullets.draw(screen)
         self.blocks.draw(screen)
         self.enemyes.draw(screen)
         self.enemy_shoots.draw(screen)
         self.elite.draw(screen)
 
+        self.enemy_border_x_checker()
+        self.enemy_border_y_checker()
         self.collision_checks()
+
+        self.elite_timer()
+
+        self.display_lives()
+        self.display_score()
+
+# стилизация под старые мониторы\телевизоры
+class CRT:
+    def __init__(self):
+        # tv.png - от автора курса, для стилизации
+        self.tv = pygame.image.load('space_battle\\images\\tv.png').convert_alpha()
+        self.tv = pygame.transform.scale(self.tv, (screen_width, screen_height))
+
+    # симуляция линий развертки
+    def create_crt_lines(self):
+        line_height = 3
+        line_amount = int(screen_height / line_height)
+        for line in range(line_amount):
+            y_pos = line * line_height
+            # screen в обычных случаях, но тут надо вывести на рамку tv.png 
+            pygame.draw.line(self.tv, 'black', (0, y_pos), (screen_width, y_pos), 1)
+
+    # симуляция мерцания и затенения по краям
+    def draw(self):
+        self.tv.set_alpha(randint(75, 90))
+        self.create_crt_lines()
+        screen.blit(self.tv, (0, 0))
 
 if __name__ == '__main__':
     pygame.init()  # инициализация
@@ -155,6 +213,7 @@ if __name__ == '__main__':
     pygame.display.set_caption('space battle')  # заголовок окна игры
     clock = pygame.time.Clock()
     game = Game()
+    crt = CRT()
 
     # событие выстрела противниками в игрока
     ENEMYSHOOT = pygame.USEREVENT + 1
@@ -170,6 +229,7 @@ if __name__ == '__main__':
 
         screen.fill((30, 30, 30))
         game.run()
+        crt.draw()  # закомментить для отключения стилизации
 
         pygame.display.flip()
         clock.tick(60)  # ограничение частоты кадров

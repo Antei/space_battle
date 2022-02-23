@@ -8,14 +8,14 @@ class Block(pygame.sprite.Sprite):
         self.image.fill(color)
         self.rect = self.image.get_rect(topleft = (x, y))
 
-# массив, используемый как шаблон для заполнения блоками препятствий
+# шаблон для заполнения препятствий блоками
 shape = [
     '  xxxxxxx', 
     ' xxxxxxxxx', 
     'xxxxxxxxxxx', 
     'xxxxxxxxxxx',
     'xxxxxxxxxxx', 
-    'xxx  x  xxx', 
+    'xxx     xxx', 
     'xx       xx'
     ]
 

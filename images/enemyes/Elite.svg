@@ -3,12 +3,15 @@
 
 <svg
    width="72"
-   height="32"
-   viewBox="0 0 19.05 8.4666669"
+   height="24"
+   viewBox="0 0 19.05 6.3500004"
    version="1.1"
    id="svg834"
    inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
    sodipodi:docname="Elite.svg"
+   inkscape:export-filename="C:\Users\Antei Hasgard\OneDrive\RnD\programming\python\space_battle\images\enemyes\elite.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -21,7 +24,7 @@
      inkscape:pageshadow="0"
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="0"
-     inkscape:document-units="mm"
+     inkscape:document-units="px"
      showgrid="false"
      units="px"
      inkscape:zoom="10.437107"
@@ -40,7 +43,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#7f2d7f;stroke-width:0.878002;paint-order:fill markers stroke;fill-opacity:1"
+       style="fill:#7f2d7f;fill-opacity:1;stroke-width:0.878002;paint-order:fill markers stroke"
        id="rect917"
        width="19.049999"
        height="6.3499999"
@@ -48,14 +51,17 @@
        y="0"
        ry="2.3783774"
        rx="9.5249996" />
-    <rect
-       style="fill:#7f2d7f;stroke-width:0.830639;paint-order:fill markers stroke;fill-opacity:1"
-       id="rect941"
-       width="3.175"
-       height="5.2916665"
-       x="7.9375"
-       y="3.175"
-       rx="10.412123"
-       ry="0" />
+    <circle
+       style="fill:#7fd87f;fill-opacity:1;stroke-width:0.860838;paint-order:fill markers stroke"
+       id="path1545"
+       cx="9.5250006"
+       cy="3.4395835"
+       r="2.3812501" />
+    <circle
+       style="fill:#2b0000;fill-opacity:1;stroke-width:0.459635;paint-order:fill markers stroke"
+       id="path1793"
+       cx="9.5250006"
+       cy="4.2333336"
+       r="1.3229167" />
   </g>
 </svg>
