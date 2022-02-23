@@ -12,12 +12,12 @@ class Bullet(pygame.sprite.Sprite):
 
         self.height_y_constraint = screen_height
 
+    # уничтожение снарядов, если они выходят за пределы окна
     def destroy(self):
-        # уничтожение снарядов, если они выходят за пределы окна
         if self.rect.y <= -50 or self.rect.y >= self.height_y_constraint + 50:
             self.kill()
 
+    # передача всех действий снаряда
     def update(self):
-        # передача всех действий снаряда
         self.rect.y -= self.speed
         self.destroy()

@@ -2,8 +2,8 @@ import pygame
 from bullet import Bullet
 
 class Player(pygame.sprite.Sprite):
+    # определение аватара игрока, границ и скорости движения, настроек перезарядки орудия
     def __init__(self, pos, constraint, speed):
-        # определение аватара игрока, границ и скорости движения, настроек перезарядки орудия
         super().__init__()
         self.image = pygame.image.load('space_battle\\images\\player.png').convert_alpha()
         self.rect = self.image.get_rect(midbottom = pos)
@@ -15,9 +15,9 @@ class Player(pygame.sprite.Sprite):
         self.gun_cooldown = 600  # кд на перезарядку, в милисекундах
 
         self.bullets = pygame.sprite.Group()
-    
+
+    # считываем события нажатия клавиш на клавиатуре
     def get_input(self):
-        # считываем события нажатия клавиш на клавиатуре
         keys = pygame.key.get_pressed()
         
         # движение по A/D или по стрелкам влево/вправо
@@ -32,16 +32,17 @@ class Player(pygame.sprite.Sprite):
             self.ready = False  # переключение флага готовности пока перезарядка
             self.gun_time = pygame.time.get_ticks()
 
+    # сравнение разности текущего времени и времени выстрела 
+    # для переключения флага готовности
     def reload(self):
-        # сравнение разности текущего времени и времени выстрела 
-        # для переключения флага готовности
         if not self.ready:
             current_time = pygame.time.get_ticks()
             if current_time - self.gun_time >= self.gun_cooldown:
                 self.ready = True
 
+
+    # проверка границ для ограничения передвижения
     def constraint(self):
-        # проверка границ для ограничения передвижения
         if self.rect.left <= 0:
             self.rect.left = 0
         if self.rect.right >= self.max_x_constraint:
