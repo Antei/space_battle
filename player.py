@@ -16,6 +16,9 @@ class Player(pygame.sprite.Sprite):
 
         self.bullets = pygame.sprite.Group()
 
+        self.bullet_sound = pygame.mixer.Sound('space_battle\\audio\\shoot.wav')
+        self.bullet_sound.set_volume(0.4)
+
     # считываем события нажатия клавиш на клавиатуре
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -31,6 +34,7 @@ class Player(pygame.sprite.Sprite):
             self.shoot_gun()
             self.ready = False  # переключение флага готовности пока перезарядка
             self.gun_time = pygame.time.get_ticks()
+            self.bullet_sound.play()
 
     # сравнение разности текущего времени и времени выстрела 
     # для переключения флага готовности

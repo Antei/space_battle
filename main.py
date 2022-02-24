@@ -38,6 +38,15 @@ class Game:
         self.elite = pygame.sprite.GroupSingle()
         self.elite_spawn_time = randint(400, 800)
 
+        # аудио: музыка, звук выстрела, звук взрыва
+        music = pygame.mixer.Sound('space_battle\\audio\\music.wav')
+        music.set_volume(0.2)
+        music.play(loops=-1)
+        self.bullet_sound = pygame.mixer.Sound('space_battle\\audio\\shoot.wav')
+        self.bullet_sound.set_volume(0.4)
+        self.exp_sound = pygame.mixer.Sound('space_battle\\audio\\explosion.wav')
+        self.exp_sound.set_volume(0.3)
+
     # создание препятствия из массива shape в obstacle 
     # c заполнением блоками только элементов 'x'
     def create_obstacle(self, x_pos, y_pos, offset_args):
@@ -95,6 +104,7 @@ class Game:
             random_enemy = choice(self.enemyes.sprites())
             shoot_sprite = Bullet(random_enemy.rect.center, screen_height, speed=-6)
             self.enemy_shoots.add(shoot_sprite)
+            self.bullet_sound.play()
 
     # настройка появления элитного врага
     def elite_timer(self):
@@ -119,6 +129,7 @@ class Game:
                     for enemy in enemyes_hit:
                         self.score += enemy.value
                     bullet.kill()
+                    self.exp_sound.play()
                 # коллизии элитного врага
                 if pygame.sprite.spritecollide(bullet, self.elite, True):
                     bullet.kill()
@@ -134,6 +145,7 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
                     self.lives -= 1
+                    self.exp_sound.play()
                     if self.lives <= 0:
                         pygame.quit()
                         sys.exit()
@@ -159,6 +171,12 @@ class Game:
         score_rect = score_surface.get_rect(topleft = (10, 10))
         screen.blit(score_surface, score_rect) 
 
+    def victory_message(self):
+       if not self.enemyes.sprites():
+           victory_surf = self.font.render('Congratulations!', False, (200, 200, 200))
+           victory_rect = victory_surf.get_rect(center = (screen_width / 2, screen_height / 2))
+           screen.blit(victory_surf, victory_rect)
+
     # запуск, отображение и обновление картинки, etc
     def run(self):
         self.player.update()        
@@ -181,6 +199,7 @@ class Game:
 
         self.display_lives()
         self.display_score()
+        self.victory_message()
 
 # стилизация под старые мониторы\телевизоры
 class CRT:
